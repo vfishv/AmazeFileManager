@@ -20,6 +20,7 @@
 package com.amaze.filemanager.filesystem;
 
 import android.support.v4.provider.DocumentFile;
+import android.util.Log;
 
 import com.amaze.filemanager.activities.MainActivity;
 import com.amaze.filemanager.exceptions.ShellNotRunningException;
@@ -49,6 +50,7 @@ public class RootHelper {
             throw new ShellNotRunningException();
         final ArrayList<String> result = new ArrayList<>();
 
+        Log.e("root", "addCommand: " + cmd);
         // callback being called on a background handler thread
         MainActivity.shellInteractive.addCommand(cmd, 0, (commandCode, exitCode, output) -> result.addAll(output));
         MainActivity.shellInteractive.waitForIdle();
@@ -67,6 +69,7 @@ public class RootHelper {
             throws ShellNotRunningException {
         if (MainActivity.shellInteractive == null || !MainActivity.shellInteractive.isRunning())
             throw new ShellNotRunningException();
+        Log.e("root", "addCommand: " + cmd);
         MainActivity.shellInteractive.addCommand(cmd, 0, callback);
         MainActivity.shellInteractive.waitForIdle();
     }
