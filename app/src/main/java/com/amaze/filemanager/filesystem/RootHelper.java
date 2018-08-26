@@ -54,6 +54,9 @@ public class RootHelper {
         // callback being called on a background handler thread
         MainActivity.shellInteractive.addCommand(cmd, 0, (commandCode, exitCode, output) -> result.addAll(output));
         MainActivity.shellInteractive.waitForIdle();
+        for (String s : result) {
+            Log.e("root", "rs: " + s);
+        }
         return result;
     }
 
@@ -69,7 +72,7 @@ public class RootHelper {
             throws ShellNotRunningException {
         if (MainActivity.shellInteractive == null || !MainActivity.shellInteractive.isRunning())
             throw new ShellNotRunningException();
-        Log.e("root", "addCommand: " + cmd);
+        Log.e("root", "addCommand1: " + cmd);
         MainActivity.shellInteractive.addCommand(cmd, 0, callback);
         MainActivity.shellInteractive.waitForIdle();
     }
