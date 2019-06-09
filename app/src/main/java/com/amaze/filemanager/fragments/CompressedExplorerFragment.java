@@ -355,7 +355,7 @@ public class CompressedExplorerFragment extends Fragment implements BottomBarBut
         // in case of opening any unknown file inside the zip
 
         if (files.get(0).exists()) {
-            new DeleteTask(getActivity().getContentResolver(), getActivity(), this).execute(files);
+            new DeleteTask(getActivity(), this).execute(files);
         }
     }
 
@@ -436,7 +436,8 @@ public class CompressedExplorerFragment extends Fragment implements BottomBarBut
 
     private void createViews(List<CompressedObjectParcelable> items, String dir) {
         if (compressedExplorerAdapter == null) {
-            compressedExplorerAdapter = new CompressedExplorerAdapter(getActivity(), utilsProvider, items, this, decompressor);
+            compressedExplorerAdapter = new CompressedExplorerAdapter(getActivity(), utilsProvider, items, this, decompressor,
+                    PreferenceManager.getDefaultSharedPreferences(getActivity()));
             listView.setAdapter(compressedExplorerAdapter);
         } else {
             compressedExplorerAdapter.generateZip(items);

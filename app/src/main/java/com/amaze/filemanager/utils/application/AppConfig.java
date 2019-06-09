@@ -30,6 +30,7 @@ import android.os.HandlerThread;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatDelegate;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -43,6 +44,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
+import java.lang.ref.WeakReference;
+
 public class AppConfig extends GlideApplication {
 
     public static final String TAG = AppConfig.class.getSimpleName();
@@ -55,7 +58,7 @@ public class AppConfig extends GlideApplication {
     private static Handler mApplicationHandler = new Handler();
     private HandlerThread sBackgroundHandlerThread;
     private static Handler sBackgroundHandler;
-    private static Context sActivityContext;
+    private WeakReference<Context> mainActivityContext;
     private static ScreenUtils screenUtils;
 
     private static AppConfig mInstance;
@@ -153,6 +156,32 @@ public class AppConfig extends GlideApplication {
      * @param context Any context belonging to this application
      * @param message The message to show
      */
+    public static void toast(Context context, @StringRes int message) {
+        // this is a static method so it is easier to call,
+        // as the context checking and casting is done for you
+
+        if (context == null) return;
+
+        if (!(context instanceof Application)) {
+            context = context.getApplicationContext();
+        }
+
+        if (context instanceof Application) {
+            final Context c = context;
+            final @StringRes int m = message;
+
+            ((AppConfig) context).runInApplicationThread(() -> {
+                Toast.makeText(c, m, Toast.LENGTH_LONG).show();
+            });
+        }
+    }
+
+    /**
+     * Shows a toast message
+     *
+     * @param context Any context belonging to this application
+     * @param message The message to show
+     */
     public static void toast(Context context, String message) {
         // this is a static method so it is easier to call,
         // as the context checking and casting is done for you
@@ -186,16 +215,11 @@ public class AppConfig extends GlideApplication {
         return mInstance;
     }
 
-    public RequestQueue getRequestQueue() {
+    public ImageLoader getImageLoader() {
         if (mRequestQueue == null) {
             mRequestQueue = Volley.newRequestQueue(getApplicationContext());
         }
 
-        return mRequestQueue;
-    }
-
-    public ImageLoader getImageLoader() {
-        getRequestQueue();
         if (mImageLoader == null) {
             this.mImageLoader = new ImageLoader(mRequestQueue, new LruBitmapCache());
         }
@@ -206,32 +230,18 @@ public class AppConfig extends GlideApplication {
         return mUtilsHandler;
     }
 
-    public static void setActivityContext(Context context) {
-        sActivityContext = context;
-        screenUtils = new ScreenUtils((Activity)context);
+    public void setMainActivityContext(@NonNull Activity activity) {
+        mainActivityContext = new WeakReference<>(activity);
+        screenUtils = new ScreenUtils(activity);
     }
 
     public ScreenUtils getScreenUtils(){
         return screenUtils;
     }
 
-    public Context getActivityContext() {
-        return sActivityContext;
+    @Nullable
+    public Context getMainActivityContext() {
+        return mainActivityContext.get();
     }
 
-    public <T> void addToRequestQueue(Request<T> req, String tag) {
-        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-        getRequestQueue().add(req);
-    }
-
-    public <T> void addToRequestQueue(Request<T> req) {
-        req.setTag(TAG);
-        getRequestQueue().add(req);
-    }
-
-    public void cancelPendingRequests(Object tag) {
-        if (mRequestQueue != null) {
-            mRequestQueue.cancelAll(tag);
-        }
-    }
 }

@@ -32,6 +32,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -64,7 +65,6 @@ public class ExtractService extends AbstractProgressiveService {
     private NotificationManager mNotifyManager;
     private NotificationCompat.Builder mBuilder;
     private ProgressHandler progressHandler = new ProgressHandler();
-    private volatile float progressPercent = 0f;
     private ProgressListener progressListener;
     private int accentColor;
     private SharedPreferences sharedPreferences;
@@ -152,13 +152,9 @@ public class ExtractService extends AbstractProgressiveService {
     }
 
     @Override
-    protected float getPercentProgress() {
-        return progressPercent;
-    }
-
-    @Override
-    protected void setPercentProgress(float progress) {
-        progressPercent = progress;
+    @StringRes
+    protected int getTitle(boolean move) {
+        return R.string.extracting;
     }
 
     @Override
